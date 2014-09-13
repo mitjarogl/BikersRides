@@ -1,0 +1,91 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                tools:context="com.moods.bikersrides.activities.MainActivity"
+                android:background="@color/android_blue_extra_light">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"
+        android:background="@color/android_gray"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Mileage"
+            android:id="@+id/textView"
+            android:textAlignment="center"
+            android:autoText="false"
+            android:textColor="@color/white"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="100 km"
+            android:id="@+id/textView2"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:id="@+id/button_add"
+        android:src="@drawable/ic_button_add"
+        android:background="@drawable/button_blue_oval"
+        android:layout_gravity="center_horizontal"
+        android:scaleType="fitCenter"
+        android:padding="40dp"
+        android:layout_alignWithParentIfMissing="false"
+        android:baselineAlignBottom="false"
+        android:layout_above="@+id/button_my_rides"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableLeft="@drawable/ic_action_view_as_list"
+        android:paddingLeft="15dp"
+        android:text="My rides"
+        android:id="@+id/button_my_rides"
+        android:layout_above="@+id/button_favourites"
+        android:background="@drawable/button_gray"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Favourite"
+        android:drawableLeft="@drawable/ic_action_important"
+        android:paddingLeft="15dp"
+        android:background="@drawable/button_gray"
+        android:id="@+id/button_favourites"
+        android:layout_gravity="center_horizontal"
+android:textColor="@color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+
+</RelativeLayout>

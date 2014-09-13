@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generated with http://android-holo-colors.com -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="HoloTheme" parent="@style/_HoloTheme" />
+
+    <style name="_HoloTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
+        <item name="android:editTextStyle">@style/EditTextHoloTheme</item>
+
+        <item name="android:textColorHighlight">#9933b5e5</item>
+
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewHoloTheme</item>
+
+        <item name="android:ratingBarStyle">@style/RatingBarHoloTheme</item>
+
+        <item name="android:ratingBarStyleIndicator">@style/RatingBarBigHoloTheme</item>
+
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/MyActionBar</item>
+
+    </style>
+
+</resources>

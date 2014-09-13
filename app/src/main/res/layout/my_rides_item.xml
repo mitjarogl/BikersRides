@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent"
+    android:paddingBottom="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="100"
+        android:layout_marginTop="3dp"
+        android:background="@drawable/list_selector"
+        android:layout_below="@+id/textView_my_rides_date">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:gravity="center">
+
+            <CheckBox
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/checkBox_favouriteRide"
+                android:background="@drawable/btn_star_selector"
+                android:button="@null" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="80">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_action_place"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Maribor"
+                android:id="@+id/textView_start_point"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:textSize="12sp"
+                android:textColor="@color/android_blue_dark"
+                android:gravity="center|left" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_action_location_found"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Velenje"
+                android:id="@+id/textView_end_point"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:textSize="12sp"
+                android:gravity="center|left"
+                android:textColor="@color/android_blue_dark"
+                android:textIsSelectable="false" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="10">
+
+            <ImageButton
+                android:layout_width="35dp"
+                android:layout_height="30dp"
+                android:id="@+id/button_edit_ride"
+                android:tint="@color/white"
+                android:background="@drawable/button_gray"
+                android:src="@drawable/ic_action_edit"
+                android:layout_gravity="right"
+                android:layout_marginBottom="3dp" />
+
+            <ImageButton
+                android:layout_width="35dp"
+                android:layout_height="30dp"
+                android:id="@+id/button_delete_ride"
+                android:tint="@color/white"
+                android:background="@drawable/button_gray"
+                android:src="@drawable/ic_action_remove"
+                android:scaleType="fitCenter"
+                android:layout_gravity="right" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

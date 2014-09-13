@@ -1,0 +1,33 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp">
+
+    <ImageButton
+        android:layout_width="35dp"
+        android:layout_height="30dp"
+        android:id="@+id/button_remove_via"
+        android:tint="@color/white"
+        android:background="@drawable/button_gray"
+        android:src="@drawable/ic_action_remove"
+        android:scaleType="fitCenter"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="right" />
+
+    <TextView
+        android:id="@+id/textView_via"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_action_place"
+        android:layout_alignParentLeft="false"
+        android:singleLine="true"
+        android:layout_toLeftOf="@id/button_remove_via"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/button_remove_via"
+        android:textSize="12sp"
+        android:text="Maribor"
+        android:gravity="center_vertical" />
+</RelativeLayout>
