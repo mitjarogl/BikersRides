@@ -16,10 +16,11 @@ import android.widget.EditText;
 
 import com.moods.bikersrides.R;
 import com.moods.bikersrides.adapters.MyRidesAdapter;
+import com.moods.bikersrides.common.BaseGlobals;
 import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
-import com.moods.bikersrides.database.vao.Ride;
 import com.moods.bikersrides.database.dao.RideDao;
+import com.moods.bikersrides.database.vao.Ride;
 
 import java.util.List;
 import java.util.Locale;
@@ -34,13 +35,24 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
     private MyRidesAdapter mMyRidesAdapter;
     private DaoSession mDaoSession;
 
+    public MyRidesFragment() {
+    }
+
+    public static MyRidesFragment newInstance(boolean isFavourite) {
+        MyRidesFragment fragment = new MyRidesFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(BaseGlobals.ARG_IS_FAVOURITE, isFavourite);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_my_rides, container, false);
         mTxtSearch = (EditText) rootView.findViewById(R.id.textView_search);
-        mStickyList = (StickyListHeadersListView ) rootView.findViewById(R.id.listView_my_rides);
+        mStickyList = (StickyListHeadersListView) rootView.findViewById(R.id.listView_my_rides);
         DataBaseHelper dbHelper = DataBaseHelper.getInstance(getActivity());
         mDaoSession = dbHelper.getSession();
 
@@ -50,7 +62,7 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
         } else
             rides = mDaoSession.loadAll(Ride.class);
 
-        mMyRidesAdapter = new MyRidesAdapter(getActivity(), rides);
+        mMyRidesAdapter = new MyRidesAdapter(getActivity(), getActivity().getSupportFragmentManager(), rides);
         mStickyList.setAdapter(mMyRidesAdapter);
         mStickyList.setOnItemClickListener(this);
         mTxtSearch.addTextChangedListener(this);
@@ -59,14 +71,10 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
 
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
+    public void onItemClick(AdapterView<?> adapterView, View view, int pos, long rideId) {
 
-        Bundle args = new Bundle();
-        args.putLong(RideDetailsFragment.RIDE_ID, id);
-        Fragment fragment = new RideDetailsFragment();
-        fragment.setArguments(args);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment, "RIDE_DETAILS").addToBackStack(null).commit();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, RideDetailsFragment.newInstance(rideId), "RIDE_DETAILS").addToBackStack(null).commit();
     }
 
     @Override
@@ -87,17 +95,17 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
 
     private boolean isSelectedFavouriteRides() {
         Bundle bundle = getArguments();
-        return bundle != null && bundle.containsKey("isFavourite") ? true : false;
+        return bundle != null && bundle.getBoolean(BaseGlobals.ARG_IS_FAVOURITE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        ActionBar supportActionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (isSelectedFavouriteRides())
-            supportActionBar.setTitle(R.string.title_my_favourite_rides);
+            actionBar.setTitle(R.string.title_my_favourite_rides);
         else
-            supportActionBar.setTitle(R.string.title_my_rides);
+            actionBar.setTitle(R.string.title_my_rides);
     }
 
 }

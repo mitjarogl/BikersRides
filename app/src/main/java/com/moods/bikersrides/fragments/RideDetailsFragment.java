@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.moods.bikersrides.R;
 import com.moods.bikersrides.activities.FullScreenImage;
 import com.moods.bikersrides.adapters.ImageGridViewAdapter;
+import com.moods.bikersrides.common.BaseGlobals;
 import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
 import com.moods.bikersrides.database.vao.Ride;
@@ -34,9 +35,7 @@ import java.util.List;
 
 public class RideDetailsFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
 
-
-    public final static String RIDE_ID = "position";
-    long mCurrentId = -1;
+    private long mCurrentId = -1;
     private TextView mTxtStartPoint;
     private TextView mTxtEndPoint;
     private TextView mTxtVia;
@@ -48,8 +47,18 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
     private Button mBtnMap;
     private GridView mGridViewImages;
     private ImageGridViewAdapter mGridViewImagesAdapter;
-    private DaoSession daoSession;
+    private DaoSession mDaoSession;
 
+    public RideDetailsFragment() {
+    }
+
+    public static RideDetailsFragment newInstance(long rideId) {
+        RideDetailsFragment fragment = new RideDetailsFragment();
+        Bundle args = new Bundle();
+        args.putLong(BaseGlobals.ARG_RIDE_ID, rideId);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -67,11 +76,11 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
         mGridViewImages = (GridView) rootView.findViewById(R.id.gridView_images);
 
         DataBaseHelper dbHelper = DataBaseHelper.getInstance(getActivity());
-        daoSession = dbHelper.getSession();
+        mDaoSession = dbHelper.getSession();
 
         if (savedInstanceState != null) {
-            mCurrentId = savedInstanceState.getLong(RIDE_ID);
-            updateRideView(mCurrentId);
+            mCurrentId = savedInstanceState.getLong(BaseGlobals.ARG_RIDE_ID);
+            showRideDetailsView(mCurrentId);
         }
 
         //LISTENERS
@@ -81,16 +90,11 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
         return rootView;
     }
 
-    private void loadRideDetails(long rideId) {
-        //baza
-        Log.d("ID_ride", String.valueOf(rideId));
-        Ride ride = daoSession.load(Ride.class, rideId);
-        showDetails(ride);
-
-    }
 
     //FIXME refactor loop of images & vias
-    private void showDetails(Ride ride) {
+    private void showRideDetailsView(long rideId) {
+        Log.i(getClass().toString(), "RIDE_ID: " + String.valueOf(rideId));
+        Ride ride = mDaoSession.load(Ride.class, rideId);
         mTxtStartPoint.setText(ride.getStartPoint());
         mTxtEndPoint.setText(ride.getEndPoint());
         mTxtDate.setText(DataTypeUtils.date2DisplayFormat(ride.getDate()));
@@ -108,7 +112,7 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
         if (!ArrayUtils.isNullOrEmpty(ride.getVias())) {
             mTxtVia.setText(StringUtils.join(ride.getVias(), "\n"));
         }
-
+        mCurrentId = rideId;
 
     }
 
@@ -118,17 +122,12 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         Bundle args = getArguments();
         if (args != null) {
-            updateRideView(args.getLong(RIDE_ID));
+            showRideDetailsView(args.getLong(BaseGlobals.ARG_RIDE_ID));
         } else if (mCurrentId != -1) {
-            updateRideView(mCurrentId);
+            showRideDetailsView(mCurrentId);
         }
     }
 
-    public void updateRideView(long rideId) {
-        Log.d("RIDE_ID", rideId + "");
-        loadRideDetails(rideId);
-        mCurrentId = rideId;
-    }
 
 //    @Override
 //    public void onAttach(Activity activity) {
@@ -140,7 +139,7 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(RIDE_ID, mCurrentId);
+        outState.putLong(BaseGlobals.ARG_RIDE_ID, mCurrentId);
     }
 
 

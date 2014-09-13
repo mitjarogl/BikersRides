@@ -19,6 +19,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private Button mBtnMyRides;
     private Button mBtnFavourite;
 
+    public HomeFragment() {
+    }
+
+    public static HomeFragment newInstance() {
+        return new HomeFragment();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -37,23 +44,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view.equals(mBtnAddRide)) {
-            Fragment fragment = new AddRideFragment();
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment, "ADD_RIDE").addToBackStack(null).commit();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, AddRideFragment.newInstance(-1), "ADD_RIDE").addToBackStack(null).commit();
         }
         if (view.equals(mBtnMyRides)) {
-            Fragment fragment = new MyRidesFragment();
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment, "MY_RIDES").addToBackStack(null).commit();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, MyRidesFragment.newInstance(false), "MY_RIDES").addToBackStack(null).commit();
         }
         if (view.equals(mBtnFavourite)) {
-
-            Fragment fragment = new MyRidesFragment();
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            Bundle bundle = new Bundle();
-            bundle.putBoolean("isFavourite", true);
-            fragment.setArguments(bundle);
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment, "MY_RIDES").addToBackStack(null).commit();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, MyRidesFragment.newInstance(true), "MY_RIDES").addToBackStack(null).commit();
         }
     }
 

@@ -2,6 +2,7 @@ package com.moods.bikersrides.adapters;
 
 
 import android.content.Context;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.moods.bikersrides.R;
 import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
 import com.moods.bikersrides.database.vao.Ride;
+import com.moods.bikersrides.fragments.AddRideFragment;
 import com.moods.bikersrides.utils.DataTypeUtils;
 
 import java.util.ArrayList;
@@ -28,16 +30,18 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
 
     private final LayoutInflater mLayoutInflater;
     private List<Ride> mRides;
+    private FragmentManager mFragmentManager;
     private ArrayList<Ride> mFilteredRides;
     private DaoSession mDaoSession;
 
-    public MyRidesAdapter(Context context, List<Ride> rides) {
+    public MyRidesAdapter(Context context, FragmentManager fragmentManager, List<Ride> rides) {
         super(context, R.layout.my_rides_item, rides);
 
         mLayoutInflater = LayoutInflater.from(context);
         DataBaseHelper dbHelper = DataBaseHelper.getInstance(context);
         mDaoSession = dbHelper.getSession();
         mRides = rides;
+        mFragmentManager = fragmentManager;
         this.mFilteredRides = new ArrayList<Ride>();
         this.mFilteredRides.addAll(mRides);
     }
@@ -83,7 +87,13 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
                 notifyDataSetChanged();
             }
         });
-   //    holder.editButton.
+        holder.editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                mFragmentManager.beginTransaction().replace(R.id.content_frame, AddRideFragment.newInstance(getItemId(position)), "EDIT_RIDE").addToBackStack(null).commit();
+            }
+        });
         holder.favouriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -123,27 +133,6 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
         return mRides.get(position).getId();
     }
 
-
-    class ViewHolder implements View.OnClickListener {
-        TextView startPoint;
-        TextView endPoint;
-        ImageButton deleteButton;
-        ImageButton editButton;
-        CheckBox favouriteButton;
-
-        @Override
-        public void onClick(View view) {
-            if(view.equals(editButton))
-            {
-                Log.d("OK","sdsdsd");
-            }
-        }
-    }
-
-    class HeaderViewHolder {
-        TextView dateText;
-    }
-
     @Override
     public long getItemId(int position) {
         return getItem(position).getId();
@@ -164,6 +153,18 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
             }
         }
         notifyDataSetChanged();
+    }
+
+    class ViewHolder {
+        TextView startPoint;
+        TextView endPoint;
+        ImageButton deleteButton;
+        ImageButton editButton;
+        CheckBox favouriteButton;
+    }
+
+    class HeaderViewHolder {
+        TextView dateText;
     }
 
 }

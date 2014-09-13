@@ -1,7 +1,6 @@
 package com.moods.bikersrides.activities;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -10,9 +9,6 @@ import android.view.MenuItem;
 
 import com.moods.bikersrides.R;
 import com.moods.bikersrides.fragments.HomeFragment;
-import com.moods.bikersrides.fragments.ViaDialog;
-
-import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
@@ -26,9 +22,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
         if (savedInstanceState == null) {
 
-            Fragment fragment = new HomeFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment, "HOME").commit();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, HomeFragment.newInstance(), "HOME").commit();
             getSupportFragmentManager().addOnBackStackChangedListener(this);
             //Handle when activity is recreated like on orientation Change
             //          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -58,10 +53,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_search) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_search || super.onOptionsItemSelected(item);
     }
 
 

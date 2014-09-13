@@ -8,6 +8,7 @@
     <string name="title_my_rides">My rides</string>
     <string name="title_my_favourite_rides">My favourite rides</string>
     <string name="title_ride_details">Ride details</string>
+    <string name="title_edit_ride">Edit ride</string>
     <!-- explanations -->
     <string name="pick_date">Pick a date</string>
     <string name="pick_time">Pick a time</string>
@@ -18,5 +19,6 @@
     <string name="enter_start_point">Enter Start Point</string>
     <string name="enter_end_point">Enter End Point</string>
     <string name="enter_via">Enter via</string>
+
 
 </resources>

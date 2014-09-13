@@ -19,7 +19,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.moods.bikersrides.R;
 import com.moods.bikersrides.adapters.AutoCompleteLoading;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ViaDialog extends DialogFragment implements IBaseModel, View.OnClickListener {
-    public static final String VIA_ENTRIES = "ViaEntries";
     private AutoCompleteLoading mTxtVia;
     private ImageButton mBtnAddVia;
     private Button mBtnSaveVia;
@@ -40,6 +38,17 @@ public class ViaDialog extends DialogFragment implements IBaseModel, View.OnClic
     private List<String> mListVia = new ArrayList<String>();
     private ProgressBar mProgress;
 
+
+    public ViaDialog() {
+    }
+
+    public static ViaDialog newInstance(ArrayList<String> viaEntries) {
+        ViaDialog viaDialog = new ViaDialog();
+        Bundle args = new Bundle();
+        args.putStringArrayList(BaseGlobals.ARG_VIA_ENTRIES, viaEntries);
+        viaDialog.setArguments(args);
+        return viaDialog;
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -75,17 +84,15 @@ public class ViaDialog extends DialogFragment implements IBaseModel, View.OnClic
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         getDialog().getWindow().setAttributes(lp);
 
-        if (getArguments() != null) {
-            Log.d("ENTRIES", String.valueOf(getArguments().getStringArrayList(VIA_ENTRIES).size()));
-            mListVia = getArguments().getStringArrayList(VIA_ENTRIES);
+        if (getArguments() != null && getArguments().getStringArrayList(BaseGlobals.ARG_VIA_ENTRIES) != null) {
+            Log.i(getClass().toString(), "VIA ENTRIES: " + String.valueOf(getArguments().getStringArrayList(BaseGlobals.ARG_VIA_ENTRIES).size()));
+            mListVia = getArguments().getStringArrayList(BaseGlobals.ARG_VIA_ENTRIES);
             for (String place : mListVia) {
                 createViaEntries(place);
             }
 
         }
-
         return super.onCreateView(inflater, container, savedInstanceState);
-
     }
 
     @Override
@@ -101,10 +108,9 @@ public class ViaDialog extends DialogFragment implements IBaseModel, View.OnClic
         }
         if (view.equals(mBtnSaveVia)) {
             Intent intent = new Intent();//put reference back to addride fragment
-            intent.putStringArrayListExtra(VIA_ENTRIES, (ArrayList<String>) mListVia);
+            intent.putStringArrayListExtra(BaseGlobals.ARG_VIA_ENTRIES, (ArrayList<String>) mListVia);
             getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
             getDialog().dismiss();
-            Toast.makeText(getActivity(),mListVia.get(0).toString(),Toast.LENGTH_LONG).show();
         }
     }
 
@@ -136,8 +142,8 @@ public class ViaDialog extends DialogFragment implements IBaseModel, View.OnClic
                     mListVia.remove(position);
                     ((LinearLayout) addView.getParent()).removeView(addView);
                 }
-                Log.d("SIZE", String.valueOf(mListVia.size()));
-                Log.d("POSITION", String.valueOf(position));
+                Log.i(getClass().toString(), "VIA ENTRIES SIZE: " + String.valueOf(mListVia.size()));
+                Log.i(getClass().toString(), "VIA POSITION: " + String.valueOf(position));
             }
         });
 

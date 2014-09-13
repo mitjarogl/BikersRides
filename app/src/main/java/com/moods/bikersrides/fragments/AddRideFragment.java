@@ -5,9 +5,9 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,6 +32,7 @@ import com.moods.bikersrides.common.IBaseModel;
 import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
 import com.moods.bikersrides.database.vao.Ride;
+import com.moods.bikersrides.database.vao.RideImage;
 import com.moods.bikersrides.database.vao.Via;
 import com.moods.bikersrides.utils.ArrayUtils;
 import com.moods.bikersrides.utils.DataTypeUtils;
@@ -51,6 +52,7 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
     private static final int IMAGE_PICKER_SELECT = 1;
     private static final int VIA_DIALOG_SELECT = 2;
     private static final int NUM_OF_ALLOWED_IMAGES = 2;
+    private long mCurrentId = -1;
     private AutoCompleteLoading mTxtStartPoint;
     private AutoCompleteLoading mTxtEndPoint;
     private RatingBar mRatRide;
@@ -69,6 +71,17 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
     private Calendar mCal = Calendar.getInstance();
     private List<String> mListVia;// = new ArrayList<String>();
     private DaoSession mDaoSession;
+
+    public AddRideFragment() {
+    }
+
+    public static AddRideFragment newInstance(long rideId) {
+        AddRideFragment fragment = new AddRideFragment();
+        Bundle args = new Bundle();
+        args.putLong(BaseGlobals.ARG_RIDE_ID, rideId);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -103,12 +116,25 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
         mTxtEndPoint.setAdapter(adapter);
         mTxtEndPoint.setLoadingIndicator(mProgressEnd);
 
-
         this.mBtnPickDate.setOnClickListener(this);
         this.mBtnAddImage.setOnClickListener(this);
         this.mBtnAddRide.setOnClickListener(this);
         this.mBtnAddVia.setOnClickListener(this);
+
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Bundle args = getArguments();
+        if (isEditRideView()) {
+            showEditRideView(args.getLong(BaseGlobals.ARG_RIDE_ID));
+
+        } else if (mCurrentId != -1) {
+            showEditRideView(mCurrentId);
+        }
     }
 
     @Override
@@ -121,8 +147,7 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
         }
         if (view.equals(mBtnAddImage)) {
             if (mGridViewImages.getChildCount() >= NUM_OF_ALLOWED_IMAGES) {
-                mDialogUtils.showCancelInfoDialogWithButton(getString(R.string.title_info), getString(R.string.too_many_images)
-                );
+                mDialogUtils.showCancelInfoDialogWithButton(getString(R.string.title_info), getString(R.string.too_many_images));
             } else {
                 Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(i, IMAGE_PICKER_SELECT);
@@ -131,34 +156,25 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
         if (view.equals(mBtnAddRide)) {
             if (isValidInput()) {
 
-                Long idRide = null;
+                Long rideId = null;
                 try {
-                    idRide = addRide();
+                    rideId = addRide();
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                Log.d("RIDE-INSERT", "Inserted new ride, ID: " + idRide);
-                Bundle args = new Bundle();
-                args.putLong(RideDetailsFragment.RIDE_ID, idRide);
-                Fragment fragment = new RideDetailsFragment();
-                fragment.setArguments(args);
+                Log.i(getClass().toString(), "Inserted new ride, ID: " + rideId);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, fragment, "RIDE_DETAILS").addToBackStack(null).commit();
+                if (rideId != null)
+                    fragmentManager.beginTransaction().replace(R.id.content_frame, RideDetailsFragment.newInstance(rideId), "RIDE_DETAILS").addToBackStack(null).commit();
             }
         }
         if (view.equals(mBtnAddVia)) {
-            DialogFragment fragment = new ViaDialog();
-
-            fragment.setTargetFragment(this, VIA_DIALOG_SELECT);
-            if (mListVia != null) {
-                Bundle args = new Bundle();
-                args.putStringArrayList(ViaDialog.VIA_ENTRIES, (ArrayList<String>) mListVia);
-                fragment.setArguments(args);
-            }
-            fragment.show(getActivity().getSupportFragmentManager(), "VIA_DIALOG");
+            ViaDialog viaDialog = ViaDialog.newInstance((ArrayList<String>) mListVia);
+            viaDialog.setTargetFragment(this, VIA_DIALOG_SELECT);
+            viaDialog.show(getActivity().getSupportFragmentManager(), "VIA_DIALOG");
         }
     }
 
@@ -190,35 +206,43 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
 
     //FIXME refactor image name
     private Long addRide() throws ExecutionException, InterruptedException {
-
         Ride ride = new Ride();
         ride.setStartPoint(mTxtStartPoint.getText().toString());
         ride.setEndPoint(mTxtEndPoint.getText().toString());
         ride.setRating((int) mRatRide.getRating());
         ride.setIsFavourite(false);
-
-        //   ride.setVia("asd");
         ride.setComment(mTxtComment.getText().toString());
         ride.setDate(DataTypeUtils.displayDate2Date(mBtnPickDate.getText().toString()));
 
-        mDaoSession.insert(ride);
+        if (isEditRideView()) {
+            ride.setId(mCurrentId);
+            mDaoSession.update(ride);
+        } else {
+            mDaoSession.insert(ride);
+        }
         saveViaEntries(ride, mListVia);
         if (!ArrayUtils.isNullOrEmpty(mSelectedImages))
             new SaveImageAsync(getActivity(), mSelectedImages, ride, mDaoSession).execute();
-
-
         return ride.getId();
 
     }
 
+    //FIXME refactor
     private void saveViaEntries(Ride ride, List<String> viaEntries) {
+        Log.i(getClass().toString(), "SAVE VIA ENTRIES");
         if (!ArrayUtils.isNullOrEmpty(viaEntries)) {
+            if (isEditRideView()) {
+                for (Via via : ride.getVias()) {
+                    mDaoSession.delete(via);
+                }
+            }
             for (String viaEntry : viaEntries) {
                 Via via = new Via();
                 via.setVia(viaEntry);
                 via.setRideId(ride.getId());
                 mDaoSession.insert(via);
             }
+
         }
     }
 
@@ -235,17 +259,39 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
         return true;
     }
 
-
-    private void updateRide() {
-
+    private void showEditRideView(long rideId) {
+        Log.i(getClass().toString(), "RIDE_ID: " + String.valueOf(rideId));
+        Ride ride = mDaoSession.load(Ride.class, rideId);
+        mTxtStartPoint.setText(ride.getStartPoint());
+        mTxtEndPoint.setText(ride.getEndPoint());
+        mRatRide.setRating(ride.getRating());
+        mBtnPickDate.setText(DataTypeUtils.date2DisplayFormat(ride.getDate()));
+        mTxtComment.setText(ride.getComment());
+        mListVia = new ArrayList<String>();
+        if (!ArrayUtils.isNullOrEmpty(ride.getVias()))
+            for (Via via : ride.getVias()) {
+                mListVia.add(via.getVia());
+            }
+        if (!ArrayUtils.isNullOrEmpty(ride.getImages())) {
+            for (RideImage rideImage : ride.getImages())
+                mSelectedImagesPaths.add(rideImage.getImgPath());
+        }
+        mCurrentId = rideId;
     }
 
+    private boolean isEditRideView() {
+        Bundle bundle = getArguments();
+        return bundle != null && bundle.getLong(BaseGlobals.ARG_RIDE_ID) != -1;
+    }
 
     @Override
     public void onResume() {
         super.onResume();
-        ((ActionBarActivity) getActivity()).getSupportActionBar()
-                .setTitle(R.string.title_add_ride);
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        if (isEditRideView())
+            actionBar.setTitle(R.string.title_edit_ride);
+        else
+            actionBar.setTitle(R.string.title_add_ride);
     }
 
 }
