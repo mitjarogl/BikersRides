@@ -2,191 +2,203 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.moods.bikersrides.fragments.RideDetailsFragment"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
->
+    tools:context="com.moods.bikersrides.fragments.RideDetailsFragment">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbarStyle="outsideOverlay">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="100"
-        android:id="@+id/linearLayout">
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true">
 
-        <CheckBox
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:id="@+id/checkBox_favouriteRide"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center"
-            android:background="@drawable/btn_star_selector"
-            android:button="@null"/>
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="100">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="90"
-            android:gravity="left"
-            android:layout_marginLeft="5dp">
+                <CheckBox
+                    android:id="@+id/checkBox_favouriteRide"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/btn_star_selector"
+                    android:button="@null"
+                    android:scaleType="fitCenter" />
 
-            <TextView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="90"
+                    android:gravity="left"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView_start_point"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_action_place"
+                        android:gravity="center"
+                        android:paddingRight="20dp"
+                        android:singleLine="true"
+                        android:text="Maribor"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textView_via"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_action_location_searching"
+                        android:gravity="center"
+                        android:paddingRight="20dp"
+                        android:text="Small Text"
+                        android:textColor="@color/android_gray"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/textView_end_point"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/ic_action_location_found"
+                        android:gravity="center"
+                        android:paddingRight="20dp"
+                        android:singleLine="true"
+                        android:text="Dravograd"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Maribor"
-                android:drawableLeft="@drawable/ic_action_place"
-                android:id="@+id/textView_start_point"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:paddingRight="20dp" />
+                android:layout_below="@+id/linearLayout"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/border_top"
+                android:orientation="horizontal"
+                android:paddingBottom="5dp"
+                android:paddingTop="10dp"
+                android:weightSum="100">
 
-            <TextView
+                <TextView
+                    android:id="@+id/textView_my_rides_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="50"
+                    android:drawableLeft="@drawable/ic_action_event_dark"
+                    android:gravity="center"
+                    android:text="25.5.2014"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <TextView
+                    android:id="@+id/textView_mileage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="50"
+                    android:drawableLeft="@drawable/abc_ic_menu_share_holo_light"
+                    android:gravity="center"
+                    android:text="100 km"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/frameLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/ic_action_location_searching"
-                android:textSize="12sp"
-                android:text="Small Text"
-                android:gravity="center"
-                android:textColor="@color/android_gray"
-                android:id="@+id/textView_via"
-                android:paddingRight="20dp"/>
+                android:layout_below="@+id/linearLayout2"
+                android:background="@drawable/border_top">
 
-            <TextView
+                <RatingBar
+                    android:id="@+id/rating_ride"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/linearLayout2"
+                    android:layout_centerHorizontal="true"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:clickable="false"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="1" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/frameLayout2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dravograd"
-                android:drawableLeft="@drawable/ic_action_location_found"
-                android:id="@+id/textView_end_point"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:paddingRight="20dp" />
-        </LinearLayout>
+                android:layout_below="@+id/frameLayout"
+                android:background="@drawable/border_top"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp">
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/textView_comment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Odlična vožnja. Zelo lep razgled na savinjske alpe." />
+            </FrameLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout"
-        android:background="@drawable/border_top"
-        android:weightSum="100"
-        android:layout_marginTop="5dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="5dp"
-        android:id="@+id/linearLayout2">
+            <LinearLayout
+                android:id="@+id/linearLayout3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/frameLayout2"
+                android:background="@drawable/border_top"
+                android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="25.5.2014"
-            android:drawableLeft="@drawable/ic_action_event_dark"
-            android:id="@+id/textView_my_rides_date"
-            android:gravity="center"
-            android:layout_weight="50" />
+                <Button
+                    android:id="@+id/button_alt_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:background="@drawable/button_gray"
+                    android:drawableLeft="@drawable/ic_action_about"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="Alternative info"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="100 km"
-            android:drawableLeft="@drawable/abc_ic_menu_share_holo_light"
-            android:id="@+id/textView_mileage"
-            android:gravity="center"
-            android:layout_weight="50" />
-    </LinearLayout>
+                <Button
+                    android:id="@+id/button_map"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_gray"
+                    android:drawableLeft="@drawable/ic_action_map"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:text="See on map"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout2"
-        android:background="@drawable/border_top"
-        android:id="@+id/frameLayout">
+            <GridView
+                android:id="@+id/gridView_images"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/linearLayout3"
+                android:layout_centerHorizontal="true"
+                android:horizontalSpacing="5dp"
+                android:numColumns="5" />
 
-        <RatingBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/rating_ride"
-            android:isIndicator="true"
-            android:layout_below="@+id/linearLayout2"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
-            android:layout_marginTop="5dp"
-            android:numStars="5"
-            android:stepSize="1"
-            android:clickable="false" />
-    </FrameLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/frameLayout"
-        android:background="@drawable/border_top"
-        android:id="@+id/frameLayout2"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Odlična vožnja. Zelo lep razgled na savinjske alpe."
-            android:id="@+id/textView_comment" />
-    </FrameLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/border_top"
-        android:layout_below="@+id/frameLayout2"
-        android:orientation="vertical"
-        android:id="@+id/linearLayout3">
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Alternative info"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:background="@drawable/button_gray"
-            android:drawableLeft="@drawable/ic_action_about"
-            android:id="@+id/button_alt_info"
-            android:layout_marginTop="15dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:text="See on map"
-            android:id="@+id/button_map"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:background="@drawable/button_gray"
-            android:drawableLeft="@drawable/ic_action_map"
-            android:layout_marginTop="5dp"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
-            android:layout_weight="1" />
-    </LinearLayout>
-
-    <GridView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/gridView_images"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/linearLayout3"
-        android:numColumns="5"
-        android:horizontalSpacing="5dp" />
-
-
+        </RelativeLayout>
+    </ScrollView>
 
 </RelativeLayout>

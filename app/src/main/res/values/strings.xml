@@ -19,6 +19,10 @@
     <string name="enter_start_point">Enter Start Point</string>
     <string name="enter_end_point">Enter End Point</string>
     <string name="enter_via">Enter via</string>
+    <string name="via_already_entered">Via entry already entered</string>
+    <string name="you_have">You have\u0020</string>
+    <string name="rides">\u0020rides!</string>
+    <string name="last_ride">Last one was on: </string>
 
 
 </resources>

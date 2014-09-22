@@ -101,8 +101,8 @@ public class ViaDialog extends DialogFragment implements IBaseModel, View.OnClic
         if (view.equals(mBtnAddVia)) {
             if (isValidInput()) {
                 String viaEntry = mTxtVia.getText().toString();
-                createViaEntries(viaEntry);
                 mListVia.add(viaEntry);
+                createViaEntries(viaEntry);
                 mTxtVia.getText().clear();
             }
         }
@@ -120,6 +120,10 @@ public class ViaDialog extends DialogFragment implements IBaseModel, View.OnClic
             mTxtVia.setError(getString(R.string.enter_via));
             return false;
         }
+        if (mListVia.contains(mTxtVia.getText().toString())) {
+            mTxtVia.setError(getString(R.string.via_already_entered));
+            return false;
+        }
         return true;
     }
 
@@ -131,19 +135,16 @@ public class ViaDialog extends DialogFragment implements IBaseModel, View.OnClic
         ImageButton buttonRemove = (ImageButton) addView.findViewById(R.id.button_remove_via);
         textOut.setText(viaEntry);
         mBtnSaveVia.setVisibility(View.VISIBLE);
-        addView.setTag(mListVia.size() - 1);
+        addView.setTag(viaEntry);
         buttonRemove.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                int position = (Integer) addView.getTag();
-
-                if (mListVia.size() > position) {
-                    mListVia.remove(position);
-                    ((LinearLayout) addView.getParent()).removeView(addView);
-                }
-                Log.i(getClass().toString(), "VIA ENTRIES SIZE: " + String.valueOf(mListVia.size()));
-                Log.i(getClass().toString(), "VIA POSITION: " + String.valueOf(position));
+                String viaEntry = (String) addView.getTag();
+                Log.i(getClass().toString(), "REMOVED ELEMENT: " + viaEntry);
+                mListVia.remove(viaEntry);
+                Log.i(getClass().toString(), "VIA ENTRIES LIST SIZE: " + String.valueOf(mListVia.size()));
+                ((LinearLayout) addView.getParent()).removeView(addView);
             }
         });
 

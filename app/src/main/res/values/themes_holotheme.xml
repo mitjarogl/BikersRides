@@ -19,7 +19,13 @@
 
         <!-- Support library compatibility -->
         <item name="actionBarStyle">@style/MyActionBar</item>
+        <!-- for AppCompat -->
+        <item name="actionBarItemBackground">@drawable/selectable_actionbar_item</item>
+
+        <item name="actionModeBackground">@color/android_blue_light</item>
+
 
     </style>
+
 
 </resources>

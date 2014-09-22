@@ -6,9 +6,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,12 +32,13 @@ import java.util.Locale;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 
-public class MyRidesFragment extends Fragment implements AdapterView.OnItemClickListener, TextWatcher {
+public class MyRidesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, TextWatcher {
 
     private EditText mTxtSearch;
     private StickyListHeadersListView mStickyList;
     private MyRidesAdapter mMyRidesAdapter;
     private DaoSession mDaoSession;
+    private ActionMode mActionMode;
 
     public MyRidesFragment() {
     }
@@ -54,6 +59,8 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
         mTxtSearch = (EditText) rootView.findViewById(R.id.textView_search);
         mStickyList = (StickyListHeadersListView) rootView.findViewById(R.id.listView_my_rides);
         DataBaseHelper dbHelper = DataBaseHelper.getInstance(getActivity());
+        mStickyList.setEmptyView(rootView.findViewById(R.id.empty));
+
         mDaoSession = dbHelper.getSession();
 
         List<Ride> rides;
@@ -65,6 +72,7 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
         mMyRidesAdapter = new MyRidesAdapter(getActivity(), getActivity().getSupportFragmentManager(), rides);
         mStickyList.setAdapter(mMyRidesAdapter);
         mStickyList.setOnItemClickListener(this);
+        mStickyList.setOnItemLongClickListener(this);
         mTxtSearch.addTextChangedListener(this);
         return rootView;
     }
@@ -72,14 +80,21 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int pos, long rideId) {
+        if (mActionMode == null) {
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, RideDetailsFragment.newInstance(rideId), "RIDE_DETAILS").addToBackStack("MY_RIDES").commit();
+        } else onListItemSelect(pos);
+    }
 
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, RideDetailsFragment.newInstance(rideId), "RIDE_DETAILS").addToBackStack(null).commit();
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int pos, long id) {
+
+        onListItemSelect(pos);
+        return true;
     }
 
     @Override
     public void beforeTextChanged(CharSequence cs, int i, int i2, int i3) {
-
     }
 
     @Override
@@ -93,10 +108,6 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
         mMyRidesAdapter.filter(text);
     }
 
-    private boolean isSelectedFavouriteRides() {
-        Bundle bundle = getArguments();
-        return bundle != null && bundle.getBoolean(BaseGlobals.ARG_IS_FAVOURITE);
-    }
 
     @Override
     public void onResume() {
@@ -108,5 +119,72 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
             actionBar.setTitle(R.string.title_my_rides);
     }
 
+    private boolean isSelectedFavouriteRides() {
+        Bundle bundle = getArguments();
+        return bundle != null && bundle.getBoolean(BaseGlobals.ARG_IS_FAVOURITE);
+    }
+
+    private void onListItemSelect(int position) {
+        mMyRidesAdapter.toggleSelection(position);
+        boolean hasCheckedItems = mMyRidesAdapter.getSelectedCount() > 0;
+
+        if (hasCheckedItems && mActionMode == null)
+            // there are some selected items, start the actionMode
+            mActionMode = ((ActionBarActivity) getActivity()).startSupportActionMode(new ActionModeCallback());
+        else if (!hasCheckedItems && mActionMode != null)
+            // there no selected items, finish the actionMode
+            mActionMode.finish();
+
+        if (mActionMode != null)
+            mActionMode.setTitle(String.valueOf(mMyRidesAdapter
+                    .getSelectedCount()) + " selected");
+    }
+
+    private class ActionModeCallback implements ActionMode.Callback {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // inflate contextual menu
+            mode.getMenuInflater().inflate(R.menu.context_main, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+
+            switch (item.getItemId()) {
+                case R.id.menu_delete:
+                    // retrieve selected items and delete them out
+                    SparseBooleanArray selected = mMyRidesAdapter
+                            .getSelectedIds();
+                    for (int i = (selected.size() - 1); i >= 0; i--) {
+                        if (selected.valueAt(i)) {
+                            Ride selectedItem = mMyRidesAdapter
+                                    .getItem(selected.keyAt(i));
+                            mMyRidesAdapter.remove(selectedItem);
+
+                            mDaoSession.delete(selectedItem);
+                        }
+                    }
+                    mode.finish(); // Action picked, so close the CAB
+                    return true;
+                default:
+                    return false;
+            }
+
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            // remove selection
+            mMyRidesAdapter.removeSelection();
+            mActionMode = null;
+        }
+    }
 }
 

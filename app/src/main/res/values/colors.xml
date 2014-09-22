@@ -11,6 +11,7 @@
     <color name="android_blue_extra_light">#e1f4fb</color>
     <color name="android_gray_extra_light">#cccccc</color>
     <color name="android_gray_light">#bebebe</color>
+    <color name="android_gray_lighter">#FF9D9D9D</color>
     <color name="android_gray">#777</color>
     <color name="android_gray_dark">#555555</color>
     <color name="android_gray_extra_dark">#323232</color>

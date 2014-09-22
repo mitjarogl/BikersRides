@@ -88,7 +88,7 @@ public class PlacesAutocompleteAdapter extends ArrayAdapter<String> implements F
                     s.start();
                     loadPlaceSuggestions(charSequence.toString());
                     s.stop();
-                    Log.d("RESPONSE-TIMElje", String.valueOf(s.getElapsedTime()));
+                    Log.i(getClass().toString(), "RESPONSE-TIME-ALL: " + String.valueOf(s.getElapsedTime()));
                     s.stop();
                     while (mLoading) {
                     }
@@ -98,7 +98,7 @@ public class PlacesAutocompleteAdapter extends ArrayAdapter<String> implements F
                     mCurrentSequence = charSequence.toString();
                 }
                 sw.stop();
-                Log.d("RESPONSE-TIME_FILTER", String.valueOf(sw.getElapsedTime()));
+                Log.i(getClass().toString(), "RESPONSE-TIME-FILTER: " + String.valueOf(sw.getElapsedTime()));
                 return filterResults;
             }
 
@@ -139,8 +139,8 @@ public class PlacesAutocompleteAdapter extends ArrayAdapter<String> implements F
                 sw.start();
                 parsePlacesResponse(response);
                 sw.stop();
-                Log.d("RESPONSE-TIME-PARSE", String.valueOf(sw.getElapsedTime()));
-                //   Log.d("RESPONSE_AUTOCOMPLETE", response);
+                Log.i(getClass().toString(), "RESPONSE-TIME-PARSE: " + String.valueOf(sw.getElapsedTime()));
+                Log.d("RESPONSE_AUTOCOMPLETE", response);
                 mLoading = false;
 
             }

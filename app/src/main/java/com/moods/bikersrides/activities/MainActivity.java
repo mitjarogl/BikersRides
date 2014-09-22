@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.moods.bikersrides.R;
+import com.moods.bikersrides.fragments.AddRideFragment;
 import com.moods.bikersrides.fragments.HomeFragment;
 
 
@@ -53,6 +54,13 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        if (id == R.id.action_new_ride) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            //FIXME refactor
+            if (fragmentManager.findFragmentByTag("ADD_RIDE") == null) {
+                fragmentManager.beginTransaction().replace(R.id.content_frame, AddRideFragment.newInstance(-1), "ADD_RIDE").addToBackStack(null).commit();
+            }
+        }
         return id == R.id.action_search || super.onOptionsItemSelected(item);
     }
 
@@ -77,4 +85,5 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         getSupportFragmentManager().popBackStack();
         return true;
     }
+
 }

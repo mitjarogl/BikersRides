@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.moods.bikersrides" >
+    package="com.moods.bikersrides">
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -9,9 +9,11 @@
     <application
         android:name=".common.AppController"
         android:allowBackup="true"
-        android:icon="@drawable/motorbike"
+        android:icon="@drawable/ic_motorbike"
         android:label="@string/app_name"
-        android:theme="@style/HoloTheme" >
+        android:theme="@style/HoloTheme">
+        <uses-library android:name="com.google.android.maps" />
+
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
@@ -24,10 +26,11 @@
         </activity>
         <activity
             android:name=".maps.MapsActivity"
-            android:label="@string/title_activity_maps" >
+            android:label="@string/title_activity_maps">
+
         </activity>
-        <activity android:name=".activities.FullScreenImage"
-></activity>
+        <activity android:name=".activities.FullScreenImage"></activity>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generated with http://android-holo-colors.com -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="HoloTheme" parent="@style/_HoloTheme" />
+
+    <style name="_HoloTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
+        <item name="android:editTextBackground">@drawable/holotheme_edit_text_holo_light</item>
+
+        <item name="android:textColorHighlight">#9933b5e5</item>
+        <item name="android:textSelectHandleLeft">@drawable/holotheme_text_select_handle_left</item>
+        <item name="android:textSelectHandleRight">@drawable/holotheme_text_select_handle_right
+        </item>
+        <item name="android:textSelectHandle">@drawable/holotheme_text_select_handle_middle</item>
+
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewHoloTheme</item>
+
+        <item name="android:ratingBarStyle">@style/RatingBarHoloTheme</item>
+
+        <item name="android:ratingBarStyleIndicator">@style/RatingBarBigHoloTheme</item>
+
+        <item name="android:fastScrollThumbDrawable">@drawable/holotheme_fastscroll_thumb_holo
+        </item>
+
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+
+        <!-- for native ActionBar -->
+        <item name="android:actionBarItemBackground">@drawable/selectable_actionbar_item</item>
+        <item name="android:actionModeBackground">@color/android_blue_light</item>
+    </style>
+
+</resources>

@@ -3,7 +3,7 @@ package com.moods.bikersrides.adapters;
 
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +33,7 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
     private FragmentManager mFragmentManager;
     private ArrayList<Ride> mFilteredRides;
     private DaoSession mDaoSession;
+    private SparseBooleanArray mSelectedItemsIds;
 
     public MyRidesAdapter(Context context, FragmentManager fragmentManager, List<Ride> rides) {
         super(context, R.layout.my_rides_item, rides);
@@ -41,6 +42,7 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
         DataBaseHelper dbHelper = DataBaseHelper.getInstance(context);
         mDaoSession = dbHelper.getSession();
         mRides = rides;
+        mSelectedItemsIds = new SparseBooleanArray();
         mFragmentManager = fragmentManager;
         this.mFilteredRides = new ArrayList<Ride>();
         this.mFilteredRides.addAll(mRides);
@@ -56,11 +58,9 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
 
             holder.startPoint = (TextView) convertView.findViewById(R.id.textView_start_point);
             holder.endPoint = (TextView) convertView.findViewById(R.id.textView_end_point);
-            holder.deleteButton = (ImageButton) convertView.findViewById(R.id.button_delete_ride);
             holder.editButton = (ImageButton) convertView.findViewById(R.id.button_edit_ride);
             holder.favouriteButton = (CheckBox) convertView.findViewById(R.id.checkBox_favouriteRide);
             holder.editButton.setFocusable(false);
-            holder.deleteButton.setFocusable(false);
             holder.favouriteButton.setFocusable(false);
             convertView.setTag(holder);
         } else {
@@ -68,25 +68,7 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
         }
         holder.startPoint.setText(ride.getStartPoint());
         holder.endPoint.setText(ride.getEndPoint());
-        holder.favouriteButton.setChecked(ride.getIsFavourite());
-
-        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-//                v.animate().setDuration(1000).alpha(0).withEndAction(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        mRides.remove(ride);
-//                        notifyDataSetChanged();
-//                        v.setAlpha(1);
-//                    }
-//                });
-                Log.d("VALUE", String.valueOf(getItemId(position)));
-                mRides.remove(ride);
-                mDaoSession.delete(ride);
-                notifyDataSetChanged();
-            }
-        });
+        convertView.setSelected(mSelectedItemsIds.get(position));// selection items
         holder.editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,9 +87,14 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
                     ride.setIsFavourite(false);
                 }
                 mDaoSession.update(ride);
+
+                int positionOfFavourite = (Integer) buttonView.getTag();  //state of favourite button
+                mRides.get(positionOfFavourite).setIsFavourite(buttonView.isChecked()); // Set the value of favourite to maintain its state
             }
         });
 
+        holder.favouriteButton.setTag(position);
+        holder.favouriteButton.setChecked(ride.getIsFavourite());
         return convertView;
     }
 
@@ -155,10 +142,37 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
         notifyDataSetChanged();
     }
 
+    //--------------
+    public void toggleSelection(int position) {
+        selectView(position, !mSelectedItemsIds.get(position));
+    }
+
+    public void removeSelection() {
+        mSelectedItemsIds = new SparseBooleanArray();
+        notifyDataSetChanged();
+    }
+
+    public void selectView(int position, boolean value) {
+        if (value)
+            mSelectedItemsIds.put(position, value);
+        else
+            mSelectedItemsIds.delete(position);
+
+        notifyDataSetChanged();
+    }
+
+    public int getSelectedCount() {
+        return mSelectedItemsIds.size();
+    }
+
+    public SparseBooleanArray getSelectedIds() {
+        return mSelectedItemsIds;
+    }
+
+    //---------------------
     class ViewHolder {
         TextView startPoint;
         TextView endPoint;
-        ImageButton deleteButton;
         ImageButton editButton;
         CheckBox favouriteButton;
     }

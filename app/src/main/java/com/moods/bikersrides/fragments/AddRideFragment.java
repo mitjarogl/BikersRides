@@ -167,6 +167,7 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
 
                 Log.i(getClass().toString(), "Inserted new ride, ID: " + rideId);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStack();//skip one fragment
                 if (rideId != null)
                     fragmentManager.beginTransaction().replace(R.id.content_frame, RideDetailsFragment.newInstance(rideId), "RIDE_DETAILS").addToBackStack(null).commit();
             }

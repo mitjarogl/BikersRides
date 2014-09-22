@@ -24,6 +24,7 @@ import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
 import com.moods.bikersrides.database.vao.Ride;
 import com.moods.bikersrides.database.vao.RideImage;
+import com.moods.bikersrides.database.vao.Via;
 import com.moods.bikersrides.maps.MapsActivity;
 import com.moods.bikersrides.utils.ArrayUtils;
 import com.moods.bikersrides.utils.DataTypeUtils;
@@ -48,6 +49,7 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
     private GridView mGridViewImages;
     private ImageGridViewAdapter mGridViewImagesAdapter;
     private DaoSession mDaoSession;
+    private ArrayList<String> mAllPlaces = new ArrayList<String>();
 
     public RideDetailsFragment() {
     }
@@ -111,7 +113,16 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         if (!ArrayUtils.isNullOrEmpty(ride.getVias())) {
             mTxtVia.setText(StringUtils.join(ride.getVias(), "\n"));
+
         }
+//        temp solution
+        mAllPlaces.add(ride.getStartPoint());
+        mAllPlaces.add(ride.getEndPoint());
+        for (Via via : ride.getVias()) {
+            mAllPlaces.add(via.getVia());
+        }
+//        --------------
+
         mCurrentId = rideId;
 
     }
@@ -156,6 +167,9 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
     public void onClick(View view) {
         if (view.equals(mBtnMap)) {
             Intent intent = new Intent(getActivity(), MapsActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putStringArrayList("VIA", mAllPlaces);
+            intent.putExtras(bundle);
             getActivity().startActivity(intent);
         }
         if (view.equals(mBtnAltInfo)) {
