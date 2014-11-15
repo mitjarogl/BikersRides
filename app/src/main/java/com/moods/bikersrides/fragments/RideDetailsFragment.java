@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -23,7 +24,6 @@ import com.moods.bikersrides.common.BaseGlobals;
 import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
 import com.moods.bikersrides.database.vao.Ride;
-import com.moods.bikersrides.database.vao.RideImage;
 import com.moods.bikersrides.database.vao.Via;
 import com.moods.bikersrides.maps.MapsActivity;
 import com.moods.bikersrides.utils.ArrayUtils;
@@ -31,10 +31,9 @@ import com.moods.bikersrides.utils.DataTypeUtils;
 import com.moods.bikersrides.utils.StringUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
-public class RideDetailsFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
+public class RideDetailsFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private long mCurrentId = -1;
     private TextView mTxtStartPoint;
@@ -84,10 +83,11 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
             mCurrentId = savedInstanceState.getLong(BaseGlobals.ARG_RIDE_ID);
             showRideDetailsView(mCurrentId);
         }
-
+        Log.d(getClass().toString(),"first");
         //LISTENERS
         mGridViewImages.setOnItemClickListener(this);
         mBtnMap.setOnClickListener(this);
+        mChkFavouriteRide.setOnCheckedChangeListener(this);
 
         return rootView;
     }
@@ -104,10 +104,10 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
         mRatRide.setRating(Float.valueOf(ride.getRating()));
         mChkFavouriteRide.setChecked(ride.getIsFavourite());
         if (!ArrayUtils.isNullOrEmpty(ride.getImages())) {
-            List<String> imagePaths = new ArrayList<String>();
-            for (RideImage image : ride.getImages())
-                imagePaths.add(image.getImgPath());
-            mGridViewImagesAdapter = new ImageGridViewAdapter(getActivity(), R.layout.row_grid, imagePaths);
+//            List<String> imagePaths = new ArrayList<String>();
+//            for (RideImage image : ride.getImages())
+//                imagePaths.add(image.getImgPath());
+            mGridViewImagesAdapter = new ImageGridViewAdapter(getActivity(), ride.getImages());
             mGridViewImages.setAdapter(mGridViewImagesAdapter);
         }
 
@@ -130,7 +130,7 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onStart() {
         super.onStart();
-
+        Log.d(getClass().toString(),"second");
         Bundle args = getArguments();
         if (args != null) {
             showRideDetailsView(args.getLong(BaseGlobals.ARG_RIDE_ID));
@@ -158,8 +158,7 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
         Intent fullScreenIntent = new Intent(view.getContext(), FullScreenImage.class);
-        fullScreenIntent.putExtra("bitmapUri", mGridViewImagesAdapter.getData().get(position));
-        Log.d("coutn", String.valueOf(mGridViewImagesAdapter.getData().size()));
+        fullScreenIntent.putExtra("bitmapUri", mGridViewImagesAdapter.getmRideImages().get(position).getImgPath());
         startActivity(fullScreenIntent);
     }
 
@@ -181,5 +180,20 @@ public class RideDetailsFragment extends Fragment implements AdapterView.OnItemC
         super.onResume();
         ((ActionBarActivity) getActivity()).getSupportActionBar()
                 .setTitle(R.string.title_ride_details);
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+        if (mCurrentId != -1) {
+            Ride ride = mDaoSession.load(Ride.class, mCurrentId);
+
+            if (isChecked) {
+                ride.setIsFavourite(true);
+
+            } else {
+                ride.setIsFavourite(false);
+            }
+            mDaoSession.update(ride);
+        }
     }
 }

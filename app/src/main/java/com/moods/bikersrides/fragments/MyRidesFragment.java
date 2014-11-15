@@ -2,17 +2,13 @@ package com.moods.bikersrides.fragments;
 
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.ActionMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,6 +17,8 @@ import android.widget.EditText;
 import com.moods.bikersrides.R;
 import com.moods.bikersrides.adapters.MyRidesAdapter;
 import com.moods.bikersrides.common.BaseGlobals;
+import com.moods.bikersrides.common.CabAdapter;
+import com.moods.bikersrides.common.CabFragment;
 import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
 import com.moods.bikersrides.database.dao.RideDao;
@@ -32,13 +30,13 @@ import java.util.Locale;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 
-public class MyRidesFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, TextWatcher {
+public class MyRidesFragment extends CabFragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, TextWatcher {
 
     private EditText mTxtSearch;
     private StickyListHeadersListView mStickyList;
     private MyRidesAdapter mMyRidesAdapter;
     private DaoSession mDaoSession;
-    private ActionMode mActionMode;
+    private List<Ride> mRides;
 
     public MyRidesFragment() {
     }
@@ -63,17 +61,18 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
 
         mDaoSession = dbHelper.getSession();
 
-        List<Ride> rides;
         if (isSelectedFavouriteRides()) {
-            rides = mDaoSession.queryBuilder(Ride.class).where(RideDao.Properties.IsFavourite.eq(true)).list();
+            mRides = mDaoSession.queryBuilder(Ride.class).where(RideDao.Properties.IsFavourite.eq(true)).orderDesc(RideDao.Properties.Date).list();
         } else
-            rides = mDaoSession.loadAll(Ride.class);
+            mRides = mDaoSession.queryBuilder(Ride.class).orderDesc(RideDao.Properties.Date).list();
 
-        mMyRidesAdapter = new MyRidesAdapter(getActivity(), getActivity().getSupportFragmentManager(), rides);
+        mMyRidesAdapter = new MyRidesAdapter(getActivity(), getActivity().getSupportFragmentManager(), mRides);
         mStickyList.setAdapter(mMyRidesAdapter);
+
         mStickyList.setOnItemClickListener(this);
         mStickyList.setOnItemLongClickListener(this);
         mTxtSearch.addTextChangedListener(this);
+        setmBaseAdapter(mMyRidesAdapter);
         return rootView;
     }
 
@@ -124,67 +123,13 @@ public class MyRidesFragment extends Fragment implements AdapterView.OnItemClick
         return bundle != null && bundle.getBoolean(BaseGlobals.ARG_IS_FAVOURITE);
     }
 
-    private void onListItemSelect(int position) {
-        mMyRidesAdapter.toggleSelection(position);
-        boolean hasCheckedItems = mMyRidesAdapter.getSelectedCount() > 0;
+    @Override
+    public void onContextualActionBarItemClicked(SparseBooleanArray selected, int position) {
+        Ride selectedItem = mMyRidesAdapter
+                .getItem(selected.keyAt(position));
+        mMyRidesAdapter.remove(selectedItem);
 
-        if (hasCheckedItems && mActionMode == null)
-            // there are some selected items, start the actionMode
-            mActionMode = ((ActionBarActivity) getActivity()).startSupportActionMode(new ActionModeCallback());
-        else if (!hasCheckedItems && mActionMode != null)
-            // there no selected items, finish the actionMode
-            mActionMode.finish();
-
-        if (mActionMode != null)
-            mActionMode.setTitle(String.valueOf(mMyRidesAdapter
-                    .getSelectedCount()) + " selected");
-    }
-
-    private class ActionModeCallback implements ActionMode.Callback {
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            // inflate contextual menu
-            mode.getMenuInflater().inflate(R.menu.context_main, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-
-            switch (item.getItemId()) {
-                case R.id.menu_delete:
-                    // retrieve selected items and delete them out
-                    SparseBooleanArray selected = mMyRidesAdapter
-                            .getSelectedIds();
-                    for (int i = (selected.size() - 1); i >= 0; i--) {
-                        if (selected.valueAt(i)) {
-                            Ride selectedItem = mMyRidesAdapter
-                                    .getItem(selected.keyAt(i));
-                            mMyRidesAdapter.remove(selectedItem);
-
-                            mDaoSession.delete(selectedItem);
-                        }
-                    }
-                    mode.finish(); // Action picked, so close the CAB
-                    return true;
-                default:
-                    return false;
-            }
-
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            // remove selection
-            mMyRidesAdapter.removeSelection();
-            mActionMode = null;
-        }
+        mDaoSession.delete(selectedItem);
     }
 }
 

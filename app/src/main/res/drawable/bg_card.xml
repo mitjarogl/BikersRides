@@ -13,7 +13,7 @@
 
     <item android:bottom="2dp">
         <shape android:shape="rectangle"
-            android:dither="true">
+          >
 
             <corners android:radius="2dp" />
 

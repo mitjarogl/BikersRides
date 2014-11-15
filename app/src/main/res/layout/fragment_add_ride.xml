@@ -113,11 +113,14 @@
 
             <GridView
                 android:layout_width="wrap_content"
-                android:layout_height="55dp"
+                android:layout_height="65dp"
                 android:id="@+id/gridView_images"
                 android:visibility="gone"
+                android:layout_marginTop="5dp"
                 android:scrollingCache="false"
                 android:numColumns="3"
+                android:listSelector="@color/transparent"
+                android:choiceMode="multipleChoice"
                 android:layout_below="@+id/button_add_photo"
                 android:layout_alignRight="@+id/rating_ride"
                 android:layout_alignEnd="@+id/rating_ride"

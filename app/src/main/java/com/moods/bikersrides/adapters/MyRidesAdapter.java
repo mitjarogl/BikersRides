@@ -3,11 +3,9 @@ package com.moods.bikersrides.adapters;
 
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -18,6 +16,7 @@ import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
 import com.moods.bikersrides.database.vao.Ride;
 import com.moods.bikersrides.fragments.AddRideFragment;
+import com.moods.bikersrides.common.CabAdapter;
 import com.moods.bikersrides.utils.DataTypeUtils;
 
 import java.util.ArrayList;
@@ -26,36 +25,35 @@ import java.util.Locale;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
-public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHeadersAdapter {
+public class MyRidesAdapter extends CabAdapter implements StickyListHeadersAdapter {
 
     private final LayoutInflater mLayoutInflater;
     private List<Ride> mRides;
     private FragmentManager mFragmentManager;
     private ArrayList<Ride> mFilteredRides;
     private DaoSession mDaoSession;
-    private SparseBooleanArray mSelectedItemsIds;
-
+    //FIXME do not send fragmetManager throug constructor, rather use callback
     public MyRidesAdapter(Context context, FragmentManager fragmentManager, List<Ride> rides) {
+
         super(context, R.layout.my_rides_item, rides);
 
         mLayoutInflater = LayoutInflater.from(context);
         DataBaseHelper dbHelper = DataBaseHelper.getInstance(context);
         mDaoSession = dbHelper.getSession();
         mRides = rides;
-        mSelectedItemsIds = new SparseBooleanArray();
         mFragmentManager = fragmentManager;
-        this.mFilteredRides = new ArrayList<Ride>();
-        this.mFilteredRides.addAll(mRides);
+        mFilteredRides = new ArrayList<Ride>();
+        mFilteredRides.addAll(mRides);
     }
+
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         final Ride ride = mRides.get(position);
         if (convertView == null) {
-            convertView = mLayoutInflater.inflate(R.layout.my_rides_item, parent, false);
             holder = new ViewHolder();
-
+            convertView = mLayoutInflater.inflate(R.layout.my_rides_item, parent, false);
             holder.startPoint = (TextView) convertView.findViewById(R.id.textView_start_point);
             holder.endPoint = (TextView) convertView.findViewById(R.id.textView_end_point);
             holder.editButton = (ImageButton) convertView.findViewById(R.id.button_edit_ride);
@@ -100,8 +98,7 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
 
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
-        final HeaderViewHolder holder;
-        final Ride ride = mRides.get(position);
+        HeaderViewHolder holder;
         if (convertView == null) {
             holder = new HeaderViewHolder();
             convertView = mLayoutInflater.inflate(R.layout.my_rides_item_header, parent, false);
@@ -110,19 +107,31 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
         } else {
             holder = (HeaderViewHolder) convertView.getTag();
         }
-
-        holder.dateText.setText(DataTypeUtils.date2DisplayFormat(ride.getDate()));
+        holder.dateText.setText(DataTypeUtils.date2DisplayFormat(mRides.get(position).getDate()));
         return convertView;
     }
 
     @Override
     public long getHeaderId(int position) {
-        return mRides.get(position).getId();
+        //return the time(long) as ID because this is what headers are based upon
+
+        return mRides.get(position).getDate().getTime();
+
     }
 
     @Override
     public long getItemId(int position) {
         return getItem(position).getId();
+    }
+
+    @Override
+    public int getCount() {
+        return mRides.size();
+    }
+
+    @Override
+    public Ride getItem(int i) {
+        return mRides.get(i);
     }
 
     public void filter(String charText) {
@@ -142,34 +151,6 @@ public class MyRidesAdapter extends ArrayAdapter<Ride> implements StickyListHead
         notifyDataSetChanged();
     }
 
-    //--------------
-    public void toggleSelection(int position) {
-        selectView(position, !mSelectedItemsIds.get(position));
-    }
-
-    public void removeSelection() {
-        mSelectedItemsIds = new SparseBooleanArray();
-        notifyDataSetChanged();
-    }
-
-    public void selectView(int position, boolean value) {
-        if (value)
-            mSelectedItemsIds.put(position, value);
-        else
-            mSelectedItemsIds.delete(position);
-
-        notifyDataSetChanged();
-    }
-
-    public int getSelectedCount() {
-        return mSelectedItemsIds.size();
-    }
-
-    public SparseBooleanArray getSelectedIds() {
-        return mSelectedItemsIds;
-    }
-
-    //---------------------
     class ViewHolder {
         TextView startPoint;
         TextView endPoint;

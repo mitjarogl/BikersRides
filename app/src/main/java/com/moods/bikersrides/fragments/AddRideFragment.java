@@ -3,16 +3,18 @@ package com.moods.bikersrides.fragments;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -22,12 +24,14 @@ import android.widget.ProgressBar;
 import android.widget.RatingBar;
 
 import com.moods.bikersrides.R;
-import com.moods.bikersrides.activities.MainActivity;
+import com.moods.bikersrides.activities.FullScreenImage;
 import com.moods.bikersrides.adapters.AutoCompleteLoading;
 import com.moods.bikersrides.adapters.ImageGridViewAdapter;
 import com.moods.bikersrides.adapters.PlacesAutocompleteAdapter;
 import com.moods.bikersrides.async.SaveImageAsync;
 import com.moods.bikersrides.common.BaseGlobals;
+import com.moods.bikersrides.common.CabFragment;
+import com.moods.bikersrides.common.FragmentCallback;
 import com.moods.bikersrides.common.IBaseModel;
 import com.moods.bikersrides.database.DataBaseHelper;
 import com.moods.bikersrides.database.dao.DaoSession;
@@ -46,12 +50,14 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-
-public class AddRideFragment extends Fragment implements IBaseModel, View.OnClickListener, DatePickerDialog.OnDateSetListener {
+/**
+ * Class is adding and editing rides, based on bundle the add or edit ride is showed
+ */
+public class AddRideFragment extends CabFragment implements IBaseModel, View.OnClickListener, DatePickerDialog.OnDateSetListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, TextWatcher {
 
     private static final int IMAGE_PICKER_SELECT = 1;
     private static final int VIA_DIALOG_SELECT = 2;
-    private static final int NUM_OF_ALLOWED_IMAGES = 2;
+    private static final int NUM_OF_ALLOWED_IMAGES = 3;
     private long mCurrentId = -1;
     private AutoCompleteLoading mTxtStartPoint;
     private AutoCompleteLoading mTxtEndPoint;
@@ -63,14 +69,14 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
     private Button mBtnAddVia;
     private GridView mGridViewImages;
     private ImageGridViewAdapter mGridViewImagesAdapter;
-    private List<String> mSelectedImagesPaths;
-    private List<Bitmap> mSelectedImages;
+    private List<RideImage> mSelectedRideImages;
     private DialogUtils mDialogUtils;
     private ProgressBar mProgressStart, mProgressEnd;
 
     private Calendar mCal = Calendar.getInstance();
-    private List<String> mListVia;// = new ArrayList<String>();
+    private List<String> mListVia;
     private DaoSession mDaoSession;
+    ArrayAdapter<String> placesAdapter;
 
     public AddRideFragment() {
     }
@@ -104,29 +110,25 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
 
         DataBaseHelper dbHelper = DataBaseHelper.getInstance(getActivity());
         mDaoSession = dbHelper.getSession();
-        mSelectedImagesPaths = new ArrayList<String>();
-        mSelectedImages = new ArrayList<Bitmap>();
+        mSelectedRideImages = new ArrayList<RideImage>();
         mDialogUtils = new DialogUtils(getActivity());
 
-        ArrayAdapter<String> adapter = new PlacesAutocompleteAdapter(getActivity(), 0);
+        placesAdapter = new PlacesAutocompleteAdapter(getActivity(), 0);
         mTxtStartPoint.setThreshold(BaseGlobals.THRESHOLD);
-        mTxtStartPoint.setAdapter(adapter);
-        mTxtStartPoint.setLoadingIndicator(mProgressStart);
         mTxtEndPoint.setThreshold(BaseGlobals.THRESHOLD);
-        mTxtEndPoint.setAdapter(adapter);
-        mTxtEndPoint.setLoadingIndicator(mProgressEnd);
 
-        this.mBtnPickDate.setOnClickListener(this);
-        this.mBtnAddImage.setOnClickListener(this);
-        this.mBtnAddRide.setOnClickListener(this);
-        this.mBtnAddVia.setOnClickListener(this);
+        mGridViewImagesAdapter = new ImageGridViewAdapter(getActivity(), mSelectedRideImages);
+        mGridViewImages.setAdapter(mGridViewImagesAdapter);
 
-        return rootView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
+        mBtnPickDate.setOnClickListener(this);
+        mBtnAddImage.setOnClickListener(this);
+        mBtnAddRide.setOnClickListener(this);
+        mBtnAddVia.setOnClickListener(this);
+        mGridViewImages.setOnItemLongClickListener(this);
+        mGridViewImages.setOnItemClickListener(this);
+        mTxtStartPoint.addTextChangedListener(this);
+        mTxtEndPoint.addTextChangedListener(this);
+        setmBaseAdapter(mGridViewImagesAdapter);
 
         Bundle args = getArguments();
         if (isEditRideView()) {
@@ -135,12 +137,27 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
         } else if (mCurrentId != -1) {
             showEditRideView(mCurrentId);
         }
+
+        return rootView;
     }
+
+//
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//
+//        Bundle args = getArguments();
+//        if (isEditRideView()) {
+//            showEditRideView(args.getLong(BaseGlobals.ARG_RIDE_ID));
+//
+//        } else if (mCurrentId != -1) {
+//            showEditRideView(mCurrentId);
+//        }
+//    }
 
     @Override
     public void onClick(View view) {
         if (view.equals(mBtnPickDate)) {
-
             DateTimePicker dateTimePicker = DateTimePicker.newInstance(DateTimePicker.DATE_DIALOG_ID);
             dateTimePicker.setmDateListener(this);
             dateTimePicker.show(getActivity().getSupportFragmentManager(), "DATE_TIME_PICKER");
@@ -160,16 +177,16 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
                 try {
                     rideId = addRide();
                 } catch (ExecutionException e) {
+                    Log.e(getClass().toString(), "Error at inserting new ride!");
                     e.printStackTrace();
                 } catch (InterruptedException e) {
+                    Log.e(getClass().toString(), "Error at inserting new ride!");
                     e.printStackTrace();
                 }
 
                 Log.i(getClass().toString(), "Inserted new ride, ID: " + rideId);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.popBackStack();//skip one fragment
-                if (rideId != null)
-                    fragmentManager.beginTransaction().replace(R.id.content_frame, RideDetailsFragment.newInstance(rideId), "RIDE_DETAILS").addToBackStack(null).commit();
+
+
             }
         }
         if (view.equals(mBtnAddVia)) {
@@ -177,6 +194,14 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
             viaDialog.setTargetFragment(this, VIA_DIALOG_SELECT);
             viaDialog.show(getActivity().getSupportFragmentManager(), "VIA_DIALOG");
         }
+    }
+
+    private void redirectToDetails() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.popBackStack();//skip one fragment
+        if (mCurrentId != -1)
+            fragmentManager.beginTransaction().replace(R.id.content_frame, RideDetailsFragment.newInstance(mCurrentId), "RIDE_DETAILS").addToBackStack(null).commit();
+
     }
 
     @Override
@@ -190,16 +215,11 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == IMAGE_PICKER_SELECT && resultCode == Activity.RESULT_OK) {
-            MainActivity activity = (MainActivity) getActivity();
-            Bitmap bitmap = ImageUtils.getBitmapFromCameraData(data, activity);
-            mSelectedImages.add(bitmap);
-            mSelectedImagesPaths.add(ImageUtils.getImagePath(data, getActivity()));
-            mGridViewImagesAdapter = new ImageGridViewAdapter(getActivity(), R.layout.row_grid, mSelectedImagesPaths);
-            mGridViewImages.setAdapter(mGridViewImagesAdapter);
+            mSelectedRideImages.add(new RideImage(ImageUtils.getImagePath(data, getActivity())));
+            mGridViewImagesAdapter.notifyDataSetChanged();
             mGridViewImages.setVisibility(View.VISIBLE);
         }
         if (requestCode == VIA_DIALOG_SELECT && resultCode == Activity.RESULT_OK) {
-
             Log.i("DATE SELECTED", String.valueOf(data.getStringArrayListExtra("ViaEntries")));
             mListVia = data.getStringArrayListExtra("ViaEntries");
         }
@@ -222,8 +242,16 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
             mDaoSession.insert(ride);
         }
         saveViaEntries(ride, mListVia);
-        if (!ArrayUtils.isNullOrEmpty(mSelectedImages))
-            new SaveImageAsync(getActivity(), mSelectedImages, ride, mDaoSession).execute();
+        //FIXME dummy solution, find better no sending through constructor!!!
+        if (!ArrayUtils.isNullOrEmpty(mSelectedRideImages))
+            new SaveImageAsync(getActivity(), mSelectedRideImages, ride, mDaoSession, new FragmentCallback() {
+                @Override
+                public void onFinished() {
+                    redirectToDetails();
+                }
+            }).execute();
+        else
+            redirectToDetails();
         return ride.getId();
 
     }
@@ -243,7 +271,6 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
                 via.setRideId(ride.getId());
                 mDaoSession.insert(via);
             }
-
         }
     }
 
@@ -274,9 +301,10 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
                 mListVia.add(via.getVia());
             }
         if (!ArrayUtils.isNullOrEmpty(ride.getImages())) {
-            for (RideImage rideImage : ride.getImages())
-                mSelectedImagesPaths.add(rideImage.getImgPath());
+            mSelectedRideImages.addAll(ride.getImages());
+            mGridViewImages.setVisibility(View.VISIBLE);
         }
+
         mCurrentId = rideId;
     }
 
@@ -295,4 +323,51 @@ public class AddRideFragment extends Fragment implements IBaseModel, View.OnClic
             actionBar.setTitle(R.string.title_add_ride);
     }
 
+    @Override
+    public void onContextualActionBarItemClicked(SparseBooleanArray selected, int position) {
+        RideImage selectedRideImage = mGridViewImagesAdapter
+                .getItem(selected.keyAt(position));
+        mSelectedRideImages.remove(selectedRideImage);
+        mGridViewImagesAdapter.remove(selectedRideImage);
+        if (mGridViewImagesAdapter.isEmpty())
+            mGridViewImages.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
+
+        if (mActionMode == null) {
+            Intent fullScreenIntent = new Intent(view.getContext(), FullScreenImage.class);
+            fullScreenIntent.putExtra("bitmapUri", mGridViewImagesAdapter.getmRideImages().get(pos).getImgPath());
+            startActivity(fullScreenIntent);
+        } else onListItemSelect(pos);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int pos, long id) {
+        onListItemSelect(pos);
+        return true;
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+        //load if text changed
+        if (mTxtStartPoint.getText().hashCode() == editable.hashCode()) {
+            mTxtStartPoint.setAdapter(placesAdapter);
+            mTxtStartPoint.setLoadingIndicator(mProgressStart);
+        } else if (mTxtEndPoint.getText().hashCode() == editable.hashCode()) {
+            mTxtEndPoint.setAdapter(placesAdapter);
+            mTxtEndPoint.setLoadingIndicator(mProgressEnd);
+        }
+    }
 }

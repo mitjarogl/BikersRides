@@ -9,21 +9,63 @@
                 tools:context="com.moods.bikersrides.activities.MainActivity"
                 android:background="@color/android_blue_extra_light">
 
-    <ImageButton
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:id="@+id/button_add"
-        android:src="@drawable/ic_button_add"
-        android:background="@drawable/button_blue"
-        android:layout_gravity="center_horizontal"
-        android:scaleType="fitCenter"
-        android:layout_alignWithParentIfMissing="false"
-        android:baselineAlignBottom="false"
-        android:padding="5dp"
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout">
+
+        <TextView
+            android:id="@+id/textView_count_all_rides"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/button_gray"
+            android:gravity="center"
+            android:text="100 km"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView_last_ride"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/button_blue"
+            android:gravity="center"
+            android:text="100 km"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <!--<ImageButton-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:id="@+id/button_add"-->
+        <!--android:src="@drawable/ic_button_add"-->
+        <!--android:background="@drawable/button_blue"-->
+        <!--android:layout_gravity="center_horizontal"-->
+        <!--android:scaleType="fitCenter"-->
+        <!--android:layout_alignWithParentIfMissing="false"-->
+        <!--android:baselineAlignBottom="false"-->
+        <!--android:padding="5dp"-->
+        <!--android:layout_above="@+id/button_my_rides"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_marginBottom="5dp" />-->
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitEnd"
+        android:src="@drawable/motorbike"
+        android:tint="@color/android_blue_light"
         android:layout_above="@+id/button_my_rides"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="5dp" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp" />
 
     <Button
         android:layout_width="match_parent"
@@ -36,7 +78,6 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_toEndOf="@+id/button_add"
         android:layout_marginBottom="5dp"
         android:layout_above="@+id/button_favourites"
         android:layout_alignParentLeft="true"
@@ -54,40 +95,39 @@
 android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_toEndOf="@+id/button_add"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/android_blue_light"
-        android:weightSum="100">
+    <!--<LinearLayout-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="40dp"-->
+        <!--android:background="@color/android_blue_light"-->
+        <!--android:weightSum="100">-->
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Mileage:"
-            android:id="@+id/textView"
-            android:textAlignment="center"
-            android:autoText="false"
-            android:layout_weight="50"
-            android:gravity="center|right"
-            android:textSize="25sp" />
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:text="Mileage:"-->
+            <!--android:id="@+id/textView"-->
+            <!--android:textAlignment="center"-->
+            <!--android:autoText="false"-->
+            <!--android:layout_weight="50"-->
+            <!--android:gravity="center|right"-->
+            <!--android:textSize="25sp" />-->
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="100 km"
-            android:id="@+id/textView2"
-            android:gravity="center|left"
-            android:textAlignment="center"
-            android:textSize="25sp"
-            android:textStyle="bold"
-            android:layout_weight="50" />
-    </LinearLayout>
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:text="100 km"-->
+            <!--android:id="@+id/textView2"-->
+            <!--android:gravity="center|left"-->
+            <!--android:textAlignment="center"-->
+            <!--android:textSize="25sp"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_weight="50" />-->
+    <!--</LinearLayout>-->
 
 
 </RelativeLayout>

@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.moods.bikersrides.common.FragmentCallback;
 import com.moods.bikersrides.database.dao.DaoSession;
 import com.moods.bikersrides.database.vao.Ride;
 import com.moods.bikersrides.database.vao.RideImage;
@@ -17,19 +18,22 @@ import java.util.Random;
 public class SaveImageAsync extends AsyncTask<Void, Void, String> {
 
     private Context mContext;
-    private List<Bitmap> mSelectedImages;
+    private List<RideImage> mSelectedRideImages;
     private String mPath;
     private Ride mRide;
     private DaoSession mDaoSession;
+    private FragmentCallback mFragmentCallback;
 
     private ProgressDialog mProgressDialog;
 
-    public SaveImageAsync(Context context, List<Bitmap> selectedImages, Ride ride, DaoSession daoSession) {
+    public SaveImageAsync(Context context, List<RideImage> selectedImages, Ride ride, DaoSession daoSession, FragmentCallback fragmentCallback) {
         mContext = context;
-        mSelectedImages = selectedImages;
+        mSelectedRideImages = selectedImages;
         mRide = ride;
         mDaoSession = daoSession;
+        mFragmentCallback = fragmentCallback;
     }
+
 
     @Override
     protected void onPreExecute() {
@@ -44,11 +48,17 @@ public class SaveImageAsync extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... filePath) {
         Log.d("ASYNC-TASK-SAVE-IMAGE", "working");
-        for(Bitmap bm : mSelectedImages) {
-            RideImage ri = new RideImage();
-            ri.setImgPath(ImageUtils.saveToInternalStorage(bm, mContext, "img" + new Random().nextInt()));
-            ri.setRideId(mRide.getId());
-            mDaoSession.insert(ri);
+        //FIXME think about better solution (update instead of delete)
+        mDaoSession.getRideImageDao().deleteInTx(mRide.getImages());
+        for (RideImage rd : mSelectedRideImages) {
+//            RideImage ri = new RideImage();
+            Bitmap bm = ImageUtils.getOptimisedBitmap(rd.getImgPath());
+            rd.setImgPath(ImageUtils.saveToInternalStorage(bm, mContext, "img" + new Random().nextInt()));
+            rd.setRideId(mRide.getId());
+
+
+            mDaoSession.insert(rd);
+
         }
         return mPath;
     }
@@ -64,6 +74,7 @@ public class SaveImageAsync extends AsyncTask<Void, Void, String> {
         mProgressDialog.dismiss();
         mProgressDialog = null;
         mPath = filename;
-        Log.d("ASYNC-TASK-SAVE-IMAGE", "finished");
+        Log.i(getClass().toString(), "ASYNC-TASK-SAVE-IMAGE");
+        mFragmentCallback.onFinished();
     }
 }
